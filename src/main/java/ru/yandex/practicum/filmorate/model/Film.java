@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import ru.yandex.practicum.filmorate.util.DateFormatter;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Data
 public class Film {
@@ -14,10 +14,9 @@ public class Film {
     private int duration;
 
     public Film(String name, String description, String releaseDate, int duration) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.name = name;
         this.description = description;
-        this.releaseDate = LocalDate.parse(releaseDate, formatter);
+        this.releaseDate = LocalDate.parse(releaseDate, DateFormatter.DATE_FORMATTER);
         this.duration = duration;
     }
 }

@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.util.DateFormatter;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +18,6 @@ import java.util.Map;
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private int id = 0;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @GetMapping
     public List<Film> getAll() {
@@ -33,31 +32,31 @@ public class FilmController {
     public Film add(@RequestBody Film film) {
 
         if (film.getName().isBlank()) {
-            throw new ValidationException("Название фильма не может быть пустым");
+            throw new ValidationException("Film name should not be empty");
         }
         if (film.getDescription().length() > 200) {
-            throw new ValidationException("Максимальная длина описания — 200 символов");
+            throw new ValidationException("Maximum description length - 200 symbols");
         }
-        if (film.getReleaseDate().isBefore(LocalDate.parse("1895-12-28", formatter))) {
-            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
+        if (film.getReleaseDate().isBefore(LocalDate.parse("1895-12-28", DateFormatter.DATE_FORMATTER))) {
+            throw new ValidationException("Release date should be after 1895-12-28");
         }
         if (film.getDuration() < 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительной");
+            throw new ValidationException("Film duration should be positive");
         }
         id++;
         film.setId(id);
         films.put(id, film);
-        log.info("Фильм '{}' добавлен", film.getName());
+        log.info("Film '{}' added", film.getName());
         return film;
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
         if (!(films.containsKey(film.getId()))) {
-            throw new ValidationException("Фильм не найден");
+            throw new ValidationException("Film not found");
         }
         films.put(film.getId(), film);
-        log.info("Фильм '{}' обновлен", film.getName());
+        log.info("Film '{}' update", film.getName());
         return film;
     }
 }

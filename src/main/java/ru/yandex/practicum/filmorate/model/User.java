@@ -1,10 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import ru.yandex.practicum.filmorate.util.DateFormatter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Data
 public class User {
@@ -15,10 +14,9 @@ public class User {
     private LocalDate birthday;
 
     public User(String email, String login, String name, String birthday) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.email = email;
         this.login = login;
         this.name = name;
-        this.birthday = LocalDate.parse(birthday, formatter);
+        this.birthday = LocalDate.parse(birthday, DateFormatter.DATE_FORMATTER);
     }
 }

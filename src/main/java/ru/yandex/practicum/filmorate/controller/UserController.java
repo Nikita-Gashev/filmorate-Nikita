@@ -30,37 +30,37 @@ public class UserController {
     @PostMapping
     public User add(@RequestBody User user) {
         if (user.getEmail().isBlank()) {
-            throw new ValidationException("Электронная почта не может быть пустой");
+            throw new ValidationException("Email should not be empty");
         }
         if (!(user.getEmail().contains("@"))) {
-            throw new ValidationException("Электронная почта должна содержать символ @");
+            throw new ValidationException("Email should contain @");
         }
         if (user.getLogin().isBlank()) {
-            throw new ValidationException("Логин не может быть пустым");
+            throw new ValidationException("Login should not be empty");
         }
         if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может содержать пробелы");
+            throw new ValidationException("Login should not be contain blank");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
+            throw new ValidationException("Birthday should not be in the future");
         }
         id++;
         user.setId(id);
         users.put(id, user);
-        log.info("Пользователь '{}' добавлен", user.getLogin());
+        log.info("User '{}' added", user.getLogin());
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
         if (!(users.containsKey(user.getId()))) {
-            throw new ValidationException("Пользователь не найден");
+            throw new ValidationException("User not found");
         }
         users.put(user.getId(), user);
-        log.info("Пользователь '{}' обнволен", user.getLogin());
+        log.info("User '{}' update", user.getLogin());
         return user;
     }
 }
