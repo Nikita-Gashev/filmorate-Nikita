@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FilmServiceTest {
 
-    FilmService filmService = new FilmService(new InMemoryFilmStorage());
     UserService userService = new UserService(new InMemoryUserStorage());
+    FilmService filmService = new FilmService(new InMemoryFilmStorage(), userService);
 
     @Test
     @DisplayName("Проверка сортировки")

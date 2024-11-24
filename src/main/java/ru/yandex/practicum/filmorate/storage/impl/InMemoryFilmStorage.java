@@ -1,14 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -18,6 +14,9 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getAll() {
+        if (films.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<Film> filmsList = new ArrayList<>();
         for (Integer id : films.keySet()) {
             filmsList.add(id - 1, films.get(id));
@@ -26,25 +25,21 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(int id) {
-        if (!(films.containsKey(id))) {
-            throw new FilmNotFoundException("Film not found");
-        }
-        return films.get(id);
+    public Optional<Film> getById(int id) {
+        return Optional.ofNullable(films.get(id));
     }
 
     @Override
-    public void add(Film film) {
+    public Film add(Film film) {
         id++;
         film.setId(id);
         films.put(id, film);
+        return film;
     }
 
     @Override
-    public void update(Film film) {
-        if (!(films.containsKey(film.getId()))) {
-            throw new FilmNotFoundException("Film not found");
-        }
+    public Film update(Film film) {
         films.put(film.getId(), film);
+        return film;
     }
 }

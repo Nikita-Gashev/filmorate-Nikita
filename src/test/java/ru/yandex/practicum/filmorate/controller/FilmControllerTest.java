@@ -15,9 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FilmControllerTest {
 
-    private final FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage()),
-            new UserService(new InMemoryUserStorage()));
-    private final UserController userController = new UserController(new UserService(new InMemoryUserStorage()));
+    private final FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage(),
+            new UserService(new InMemoryUserStorage())));
 
     @Test
     @DisplayName("Добавление корректного фильма")
