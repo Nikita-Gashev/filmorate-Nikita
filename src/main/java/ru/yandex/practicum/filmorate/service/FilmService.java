@@ -60,16 +60,18 @@ public class FilmService {
         return filmStorage.getAll();
     }
 
-    public void userSetLike(int userId, int filmId) {
+    public Film userSetLike(int userId, int filmId) {
         userService.getById(userId);
         getById(filmId).getLikes().add(userId);
         log.info("User '{}' set like '{}'", userService.getById(userId).getLogin(), getById(filmId).getName());
+        return getById(filmId);
     }
 
-    public void userRemoveLike(int userId, int filmId) {
+    public Film userRemoveLike(int userId, int filmId) {
         userService.getById(userId);
         getById(filmId).getLikes().remove(userId);
         log.info("User '{}' remove like '{}'", userService.getById(userId).getLogin(), getById(filmId).getName());
+        return getById(filmId);
     }
 
     public List<Film> getPopularFilms(int count) {

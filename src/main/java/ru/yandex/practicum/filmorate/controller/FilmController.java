@@ -48,15 +48,13 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public Film userSetLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Request received PUT /films/{}/like/{}", String.valueOf(id), String.valueOf(userId));
-        filmService.userSetLike(userId, id);
-        return filmService.getById(id);
+        return filmService.userSetLike(userId, id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film userRemoveLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Request received DELETE /films/{}/like/{}", String.valueOf(id), String.valueOf(userId));
-        filmService.userRemoveLike(userId, id);
-        return filmService.getById(id);
+        return filmService.userRemoveLike(userId, id);
     }
 
     @GetMapping("/popular")

@@ -73,16 +73,18 @@ public class UserService {
         return userFriends;
     }
 
-    public void addFriend(int userId, int userFriendId) {
+    public User addFriend(int userId, int userFriendId) {
         getById(userId).getFriends().add(userFriendId);
         getById(userFriendId).getFriends().add(userId);
         log.info("User '{}' add '{}' to friend", getById(userId).getLogin(), getById(userFriendId).getLogin());
+        return getById(userId);
     }
 
-    public void removeFriend(int userId, int userFriendId) {
+    public User removeFriend(int userId, int userFriendId) {
         getById(userId).getFriends().remove(userFriendId);
         getById(userFriendId).getFriends().remove(userId);
         log.info("User '{}' remove '{}' from friend", getById(userId).getLogin(), getById(userFriendId).getLogin());
+        return getById(userId);
     }
 
     public List<User> getCommonFriends(int userId, int userFriendId) {
