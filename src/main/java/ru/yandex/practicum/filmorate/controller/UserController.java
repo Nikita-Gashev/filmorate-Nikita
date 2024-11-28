@@ -1,66 +1,71 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int id = 0;
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public List<User> getAll() {
-        List<User> usersList = new ArrayList<>();
-        for (Integer id : users.keySet()) {
-            usersList.add(id - 1, users.get(id));
-        }
-        return usersList;
+        log.info("Request received GET /users");
+        return userService.getAll();
     }
 
     @PostMapping
     public User add(@RequestBody User user) {
-        if (user.getEmail().isBlank()) {
-            throw new ValidationException("Email should not be empty");
-        }
-        if (!(user.getEmail().contains("@"))) {
-            throw new ValidationException("Email should contain @");
-        }
-        if (user.getLogin().isBlank()) {
-            throw new ValidationException("Login should not be empty");
-        }
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Login should not be contain blank");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Birthday should not be in the future");
-        }
-        id++;
-        user.setId(id);
-        users.put(id, user);
-        log.info("User '{}' added", user.getLogin());
+        log.info("Request received POST /users");
+        userService.add(user);
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
-        if (!(users.containsKey(user.getId()))) {
-            throw new ValidationException("User not found");
-        }
-        users.put(user.getId(), user);
-        log.info("User '{}' update", user.getLogin());
+        log.info("Request received PUT /users");
+        userService.update(user);
         return user;
+    }
+
+    @GetMapping("/{id}")
+    public User getById(@PathVariable int id) {
+        log.info("Request received GET /users/{}", String.valueOf(id));
+        return userService.getById(id);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable int id, @PathVariable int friendId) {
+        log.info("Request received PUT /users/{}/friends/{}", String.valueOf(id), String.valueOf(friendId));
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User removeFriend(@PathVariable int id, @PathVariable int friendId) {
+        log.info("Request received DELETE /users/{}/friends/{}", String.valueOf(id), String.valueOf(friendId));
+        return userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getUserFriends(@PathVariable int id) {
+        log.info("Request received GET /users/{}/friends", String.valueOf(id));
+        return userService.getUserFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getUserFriends(@PathVariable int id, @PathVariable int otherId) {
+        log.info("Request received GET /users/{}/friends/common/{}", String.valueOf(id), String.valueOf(otherId));
+        return userService.getCommonFriends(id, otherId);
     }
 }
