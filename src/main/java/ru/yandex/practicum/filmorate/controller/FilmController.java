@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -20,45 +20,43 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getAll() {
+    public List<FilmDto> getAll() {
         log.info("Request received GET /films");
         return filmService.getAll();
     }
 
     @PostMapping
-    public Film add(@RequestBody Film film) {
+    public FilmDto add(@RequestBody FilmDto filmDto) {
         log.info("Request received POST /films");
-        filmService.add(film);
-        return film;
+        return filmService.add(filmDto);
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) {
+    public FilmDto update(@RequestBody FilmDto filmDto) {
         log.info("Request received PUT /films");
-        filmService.update(film);
-        return film;
+        return filmService.update(filmDto);
     }
 
     @GetMapping("/{id}")
-    public Film getBiId(@PathVariable Integer id) {
+    public FilmDto getById(@PathVariable Integer id) {
         log.info("Request received GET /films/{}", String.valueOf(id));
         return filmService.getById(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film userSetLike(@PathVariable int id, @PathVariable int userId) {
+    public FilmDto userSetLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Request received PUT /films/{}/like/{}", String.valueOf(id), String.valueOf(userId));
         return filmService.userSetLike(userId, id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film userRemoveLike(@PathVariable int id, @PathVariable int userId) {
+    public FilmDto userRemoveLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Request received DELETE /films/{}/like/{}", String.valueOf(id), String.valueOf(userId));
         return filmService.userRemoveLike(userId, id);
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) int count) {
+    public List<FilmDto> getPopularFilms(@RequestParam(defaultValue = "10", required = false) int count) {
         log.info("Request received GET /popular");
         return filmService.getPopularFilms(count);
     }
