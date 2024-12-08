@@ -19,6 +19,10 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_QUERY_GET_ALL = "select * from film order by film_id";
+    private static final String SQL_QUERY_GET_BY_ID = "select * from film where film_id = ?";
+    private static final String SQL_QUERY_UPDATE_BY_ID = "update film set name = ?, description = ?, " +
+            "release_date = ?, duration = ?, mpa_id = ? where film_id = ?";
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
@@ -27,14 +31,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAll() {
-        String sql = "select * from film order by film_id";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
+        return jdbcTemplate.query(SQL_QUERY_GET_ALL, (rs, rowNum) -> makeFilm(rs));
     }
 
     @Override
     public Optional<Film> getById(int id) {
-        String sql = "select * from film where film_id = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeFilm(rs), id));
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_QUERY_GET_BY_ID, (rs, rowNum) -> makeFilm(rs), id));
     }
 
     @Override
@@ -48,10 +50,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        String sql = "update film set name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? "
-                + "where film_id = ?";
-        jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
-                film.getMpaId(), film.getId());
+        jdbcTemplate.update(SQL_QUERY_UPDATE_BY_ID, film.getName(), film.getDescription(), film.getReleaseDate(),
+                film.getDuration(), film.getMpaId(), film.getId());
         return film;
     }
 

@@ -4,9 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.*;
@@ -28,9 +30,10 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final FilmMpaStorage filmMpaStorage;
     private final MappingUtils mappingUtils;
+    private final FilmMapper filmMapper;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService, FilmWithGenreStorage filmWithGenreStorage, FilmLikesStorage filmLikesStorage, GenreStorage genreStorage, FilmMpaStorage filmMpaStorage, MappingUtils mappingUtils) {
+    public FilmService(FilmStorage filmStorage, UserService userService, FilmWithGenreStorage filmWithGenreStorage, FilmLikesStorage filmLikesStorage, GenreStorage genreStorage, FilmMpaStorage filmMpaStorage, MappingUtils mappingUtils, FilmMapper filmMapper) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.filmWithGenreStorage = filmWithGenreStorage;
@@ -38,28 +41,13 @@ public class FilmService {
         this.genreStorage = genreStorage;
         this.filmMpaStorage = filmMpaStorage;
         this.mappingUtils = mappingUtils;
+        this.filmMapper = filmMapper;
     }
 
     public FilmDto add(FilmDto filmDto) {
-        Film film = mappingUtils.mapToFilm(filmDto);
-        if (film.getName().isBlank()) {
-            throw new ValidationException("Film name should not be empty");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("Maximum description length - 200 symbols");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.parse("1895-12-28", DateFormatter.DATE_FORMATTER))) {
-            throw new ValidationException("Release date should be after 1895-12-28");
-        }
-        if (film.getDuration() < 0) {
-            throw new ValidationException("Film duration should be positive");
-        }
-        if (!(genreStorage.getAllGenreId().containsAll(film.getGenres()))) {
-            throw new IncorrectParameterException("Genre ID is not correct");
-        }
-        if (!(filmMpaStorage.getAllMpaId().contains(film.getMpaId()))) {
-            throw new IncorrectParameterException("Mpa ID is not correct");
-        }
+//        Film film = mappingUtils.mapToFilm(filmDto);
+        Film film = filmMapper.toFilm(filmDto);
+        validation(film);
         filmStorage.add(film);
         if (!(film.getGenres().isEmpty())) {
             film.setGenres(film.getGenres().stream()
@@ -68,17 +56,33 @@ public class FilmService {
             filmWithGenreStorage.setFilmWithGenre(film);
         }
         log.info("Film '{}' added", film.getName());
-        filmDto = mappingUtils.mapToFilmDto(film);
+//        filmDto = mappingUtils.mapToFilmDto(film);
+        filmDto = filmMapper.toFilmDto(film);
         return filmDto;
     }
 
+    private void validation(Film film) {
+        if (film.getReleaseDate().isBefore(LocalDate.parse("1895-12-28", DateFormatter.DATE_FORMATTER))) {
+            throw new ValidationException("Release date should be after 1895-12-28");
+        }
+        if (!(genreStorage.getAllGenreId().containsAll(film.getGenres()))) {
+            throw new IncorrectParameterException("Genre ID is not correct");
+        }
+        if (!(filmMpaStorage.getAllMpaId().contains(film.getMpaId()))) {
+            throw new IncorrectParameterException("Mpa ID is not correct");
+        }
+    }
+
+    @Transactional
     public FilmDto update(FilmDto filmDto) {
-        Film film = mappingUtils.mapToFilm(filmDto);
+//        Film film = mappingUtils.mapToFilm(filmDto);
+        Film film = filmMapper.toFilm(filmDto);
         getById(film.getId());
         filmStorage.update(film);
         filmWithGenreStorage.updateFilmWithGenre(film);
         filmLikesStorage.getFilmWithLikes(film);
-        filmDto = mappingUtils.mapToFilmDto(film);
+//        filmDto = mappingUtils.mapToFilmDto(film);
+        filmDto = filmMapper.toFilmDto(film);
         log.info("Film '{}' update", film.getName());
         return filmDto;
     }
@@ -88,17 +92,21 @@ public class FilmService {
             Film film = filmStorage.getById(id).get();
             filmWithGenreStorage.getFilmWithGenresId(film);
             filmLikesStorage.getFilmWithLikes(film);
-            return mappingUtils.mapToFilmDto(film);
+            log.info("Get film  with id: {}", id);
+//            return mappingUtils.mapToFilmDto(film);
+            return filmMapper.toFilmDto(film);
         } catch (EmptyResultDataAccessException e) {
             throw new FilmNotFoundException("Film not found");
         }
     }
 
     public List<FilmDto> getAll() {
+        log.info("Get list of films");
         return filmStorage.getAll().stream()
                 .map(filmWithGenreStorage::getFilmWithGenresId)
                 .map(filmLikesStorage::getFilmWithLikes)
-                .map(mappingUtils::mapToFilmDto)
+//                .map(mappingUtils::mapToFilmDto)
+                .map(filmMapper::toFilmDto)
                 .collect(Collectors.toList());
     }
 

@@ -15,6 +15,9 @@ import java.util.Set;
 public class FriendsDbStorage implements FriendsStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_QUERY_ADD_FRIEND = "insert into friends(user_id, friend_id) values (?, ?)";
+    private static final String SQL_QUERY_DELETE_FRIEND = "delete from friends where friend_id = ?";
+    private static final String SQL_QUERY_GET_FRIENDS_ID = "select distinct friend_id from friends where user_id = ?";
 
     @Autowired
     public FriendsDbStorage(JdbcTemplate jdbcTemplate) {
@@ -23,17 +26,14 @@ public class FriendsDbStorage implements FriendsStorage {
 
     @Override
     public User addFriend(User user, int friendId) {
-        String sql = "insert into friends(user_id, friend_id)"
-                + "values (?, ?)";
-        jdbcTemplate.update(sql, user.getId(), friendId);
+        jdbcTemplate.update(SQL_QUERY_ADD_FRIEND, user.getId(), friendId);
         user.setFriends(getFriendsId(user.getId()));
         return user;
     }
 
     @Override
     public User removeFriend(User user, int friendId) {
-        String sql = "delete from friends where friend_id = ?";
-        jdbcTemplate.update(sql, friendId);
+        jdbcTemplate.update(SQL_QUERY_DELETE_FRIEND, friendId);
         user.setFriends(getFriendsId(user.getId()));
         return user;
     }
@@ -45,8 +45,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     private Set<Integer> getFriendsId(int userId) {
-        String sql = "select distinct friend_id from friends where user_id = ?";
-        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) ->
+        return new HashSet<>(jdbcTemplate.query(SQL_QUERY_GET_FRIENDS_ID, (rs, rowNum) ->
                 getFriendId(rs), userId));
     }
 

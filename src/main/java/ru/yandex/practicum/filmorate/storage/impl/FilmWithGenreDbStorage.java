@@ -15,6 +15,12 @@ import java.util.List;
 public class FilmWithGenreDbStorage implements FilmWithGenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_QUERY_SET = "insert into film_genre(film_id, genre_id)"
+            + "values (?, ?)";
+    private static final String SQL_QUERY_DELETE = "delete from film_genre where film_id = ?";
+    private static final String SQL_QUERY_GET_GENRE_ID = "select genre_id from film_genre where film_id = ?";
+    private static final String SQL_QUERY_GET_GENRE = "select * from film_genre as fg join genre as g " +
+            "on fg.genre_id = g.genre_id where film_id = ?";
 
     @Autowired
     public FilmWithGenreDbStorage(JdbcTemplate jdbcTemplate) {
@@ -23,30 +29,25 @@ public class FilmWithGenreDbStorage implements FilmWithGenreStorage {
 
     @Override
     public Film setFilmWithGenre(Film film) {
-        String sql = "insert into film_genre(film_id, genre_id)"
-                + "values (?, ?)";
-        film.getGenres().forEach(genreId -> jdbcTemplate.update(sql, film.getId(), genreId));
+        film.getGenres().forEach(genreId -> jdbcTemplate.update(SQL_QUERY_SET, film.getId(), genreId));
         return film;
     }
 
     @Override
     public Film updateFilmWithGenre(Film film) {
-        String sql = "delete from film_genre where film_id = ?";
-        jdbcTemplate.update(sql, film.getId());
+        jdbcTemplate.update(SQL_QUERY_DELETE, film.getId());
         return setFilmWithGenre(film);
     }
 
     @Override
     public Film getFilmWithGenresId(Film film) {
-        String sql = "select genre_id from film_genre where film_id = ?";
-        film.setGenres(jdbcTemplate.query(sql, (rs, rowNum) -> getGenreId(rs), film.getId()));
+        film.setGenres(jdbcTemplate.query(SQL_QUERY_GET_GENRE_ID, (rs, rowNum) -> getGenreId(rs), film.getId()));
         return film;
     }
 
     @Override
     public List<Genre> getGenresByFilmId(int filmId) {
-        String sql = "select * from film_genre as fg join genre as g on fg.genre_id = g.genre_id where film_id = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> getGenre(rs), filmId);
+        return jdbcTemplate.query(SQL_QUERY_GET_GENRE, (rs, rowNum) -> getGenre(rs), filmId);
     }
 
     private Integer getGenreId(ResultSet rs) throws SQLException {

@@ -14,6 +14,9 @@ import java.util.List;
 public class GenreDbStorage implements GenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_QUERY_GET_ALL = "select * from genre";
+    private static final String SQL_QUERY_GET_BY_ID = "select * from genre where genre_id = ?";
+    private static final String SQL_QUERY_GET_ALL_ID = "select genre_id from genre";
 
     @Autowired
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {
@@ -22,20 +25,17 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getAll() {
-        String sql = "select * from genre";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs));
+        return jdbcTemplate.query(SQL_QUERY_GET_ALL, (rs, rowNum) -> makeGenre(rs));
     }
 
     @Override
     public Genre getById(int genreId) {
-        String sql = "select * from genre where genre_id = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeGenre(rs), genreId);
+        return jdbcTemplate.queryForObject(SQL_QUERY_GET_BY_ID, (rs, rowNum) -> makeGenre(rs), genreId);
     }
 
     @Override
     public List<Integer> getAllGenreId() {
-        String sql = "select genre_id from genre";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenreId(rs));
+        return jdbcTemplate.query(SQL_QUERY_GET_ALL_ID, (rs, rowNum) -> makeGenreId(rs));
     }
 
     private Genre makeGenre(ResultSet rs) throws SQLException {

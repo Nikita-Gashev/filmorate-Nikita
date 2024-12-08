@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.util.DateFormatter;
@@ -14,9 +16,12 @@ import java.util.Set;
 @NoArgsConstructor
 public class User {
     private int id;
+    @NotBlank(message = "Email should not be empty")
     private String email;
+    @NotBlank(message = "Login should not be empty")
     private String login;
     private String name;
+    @PastOrPresent(message = "Birthday should not be in the future")
     private LocalDate birthday;
     private Set<Integer> friends = new HashSet<>();
 

@@ -30,27 +30,22 @@ public class UserService {
     }
 
     public User add(User user) {
-        if (user.getEmail().isBlank()) {
-            throw new ValidationException("Email should not be empty");
-        }
+        validation(user);
+        userStorage.add(user);
+        log.info("User '{}' added", user.getLogin());
+        return user;
+    }
+
+    private void validation(User user) {
         if (!(user.getEmail().contains("@"))) {
             throw new ValidationException("Email should contain @");
         }
-        if (user.getLogin().isBlank()) {
-            throw new ValidationException("Login should not be empty");
-        }
         if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Login should not be contain blank");
+            throw new ValidationException("Login should not contain blank");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Birthday should not be in the future");
-        }
-        userStorage.add(user);
-        log.info("User '{}' added", user.getLogin());
-        return user;
     }
 
     public User update(User user) {
@@ -65,6 +60,7 @@ public class UserService {
         try {
             User user = userStorage.getById(id).get();
             friendsStorage.getUserWithFriends(user);
+            log.info("Get user with id: {}", id);
             return user;
         } catch (EmptyResultDataAccessException e) {
             throw new UserNotFoundException("User not found");
@@ -72,6 +68,7 @@ public class UserService {
     }
 
     public List<User> getAll() {
+        log.info("Get list of users");
         return userStorage.getAll().stream()
                 .map(friendsStorage::getUserWithFriends)
                 .collect(Collectors.toList());
@@ -79,11 +76,13 @@ public class UserService {
 
     public List<User> getUserFriends(int id) {
         if (getById(id).getFriends().isEmpty()) {
+            log.info("Get empty list of user fiends  with id: {}", id);
             return Collections.emptyList();
         }
         List<Integer> userFriendsId = new ArrayList<>(getById(id).getFriends());
         List<User> userFriends = new ArrayList<>();
         userFriendsId.forEach(num -> userFriends.add(getById(num)));
+        log.info("Get user friends with id: {}", id);
         return userFriends;
     }
 
@@ -103,6 +102,7 @@ public class UserService {
     public List<User> getCommonFriends(int userId, int userFriendId) {
         List<User> commonFriends = new ArrayList<>(getUserFriends(userId));
         commonFriends.retainAll(getUserFriends(userFriendId));
+        log.info("Get common friends between user with id:{} and user with id: {}", userId, userFriendId);
         return commonFriends;
     }
 }

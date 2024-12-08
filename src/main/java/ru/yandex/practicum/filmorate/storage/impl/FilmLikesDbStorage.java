@@ -15,6 +15,11 @@ import java.util.Set;
 public class FilmLikesDbStorage implements FilmLikesStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_QUERY_SET_LIKES = "insert into film_likes(user_id, film_id)"
+            + "values (?, ?)";
+    private static final String SQL_QUERY_DELETE_LIKES = "delete from film_likes where user_id = ? and film_id = ?";
+    private static final String SQL_QUERY_GET_USER_ID_LIKES = "select distinct user_id from film_likes " +
+            "where film_id = ?";
 
     @Autowired
     public FilmLikesDbStorage(JdbcTemplate jdbcTemplate) {
@@ -23,15 +28,12 @@ public class FilmLikesDbStorage implements FilmLikesStorage {
 
     @Override
     public void userSetLikes(int userId, int filmId) {
-        String sql = "insert into film_likes(user_id, film_id)"
-                + "values (?, ?)";
-        jdbcTemplate.update(sql, userId, filmId);
+        jdbcTemplate.update(SQL_QUERY_SET_LIKES, userId, filmId);
     }
 
     @Override
     public void userRemoveLikes(int userId, int filmId) {
-        String sql = "delete from film_likes where user_id = ? and film_id = ?";
-        jdbcTemplate.update(sql, userId, filmId);
+        jdbcTemplate.update(SQL_QUERY_DELETE_LIKES, userId, filmId);
     }
 
     @Override
@@ -41,8 +43,7 @@ public class FilmLikesDbStorage implements FilmLikesStorage {
     }
 
     private Set<Integer> getUserLikesId(int filmId) {
-        String sql = "select distinct user_id from film_likes where film_id = ?";
-        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) ->
+        return new HashSet<>(jdbcTemplate.query(SQL_QUERY_GET_USER_ID_LIKES, (rs, rowNum) ->
                 getUserId(rs), filmId));
     }
 

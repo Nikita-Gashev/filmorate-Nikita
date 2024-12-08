@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,32 +27,32 @@ public class FilmController {
     }
 
     @PostMapping
-    public FilmDto add(@RequestBody FilmDto filmDto) {
+    public FilmDto add(@Valid @RequestBody FilmDto filmDto) {
         log.info("Request received POST /films");
         return filmService.add(filmDto);
     }
 
     @PutMapping
-    public FilmDto update(@RequestBody FilmDto filmDto) {
+    public FilmDto update(@Valid @RequestBody FilmDto filmDto) {
         log.info("Request received PUT /films");
         return filmService.update(filmDto);
     }
 
     @GetMapping("/{id}")
     public FilmDto getById(@PathVariable Integer id) {
-        log.info("Request received GET /films/{}", String.valueOf(id));
+        log.info("Request received GET /films/{}", id);
         return filmService.getById(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public FilmDto userSetLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Request received PUT /films/{}/like/{}", String.valueOf(id), String.valueOf(userId));
+        log.info("Request received PUT /films/{}/like/{}", id, userId);
         return filmService.userSetLike(userId, id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public FilmDto userRemoveLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Request received DELETE /films/{}/like/{}", String.valueOf(id), String.valueOf(userId));
+        log.info("Request received DELETE /films/{}/like/{}", id, userId);
         return filmService.userRemoveLike(userId, id);
     }
 

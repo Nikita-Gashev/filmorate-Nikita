@@ -32,7 +32,7 @@ public class MpaControllers {
 
     @GetMapping("/{id}")
     public Mpa getById(@PathVariable Integer id) {
-        log.info("Request received GET /mpa/{}", String.valueOf(id));
+        log.info("Request received GET /mpa/{}", id);
         return mpaService.getById(id);
     }
 }

@@ -19,6 +19,10 @@ import java.util.Optional;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_QUERY_GET_ALL = "select * from user_filmorate";
+    private static final String SQL_QUERY_GET_BY_ID = "select * from user_filmorate where user_id = ?";
+    private static final String SQL_QUERY_UPDATE = "update user_filmorate set email = ?, login = ?, name = ?, " +
+            "birthday = ? where user_id = ?";
 
     @Autowired
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -27,14 +31,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAll() {
-        String sql = "select * from user_filmorate";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
+        return jdbcTemplate.query(SQL_QUERY_GET_ALL, (rs, rowNum) -> makeUser(rs));
     }
 
     @Override
     public Optional<User> getById(int id) {
-        String sql = "select * from user_filmorate where user_id = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeUser(rs), id));
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_QUERY_GET_BY_ID, (rs, rowNum) -> makeUser(rs), id));
     }
 
     @Override
@@ -48,9 +50,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        String sql = "update user_filmorate set email = ?, login = ?, name = ?, birthday = ? "
-                + "where user_id = ?";
-        jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(),
+        jdbcTemplate.update(SQL_QUERY_UPDATE, user.getEmail(), user.getLogin(), user.getName(),
                 user.getBirthday(), user.getId());
         return user;
     }

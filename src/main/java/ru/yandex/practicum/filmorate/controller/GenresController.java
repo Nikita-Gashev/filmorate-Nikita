@@ -32,7 +32,7 @@ public class GenresController {
 
     @GetMapping("/{id}")
     public Genre getById(@PathVariable Integer id) {
-        log.info("Request received GET /genres/{}", String.valueOf(id));
+        log.info("Request received GET /genres/{}", id);
         return genreService.getById(id);
     }
 }
