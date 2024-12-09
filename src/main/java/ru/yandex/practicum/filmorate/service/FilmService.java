@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.*;
 import ru.yandex.practicum.filmorate.util.DateFormatter;
-import ru.yandex.practicum.filmorate.util.MappingUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,23 +28,22 @@ public class FilmService {
     private final FilmLikesStorage filmLikesStorage;
     private final GenreStorage genreStorage;
     private final FilmMpaStorage filmMpaStorage;
-    private final MappingUtils mappingUtils;
     private final FilmMapper filmMapper;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService, FilmWithGenreStorage filmWithGenreStorage, FilmLikesStorage filmLikesStorage, GenreStorage genreStorage, FilmMpaStorage filmMpaStorage, MappingUtils mappingUtils, FilmMapper filmMapper) {
+    public FilmService(FilmStorage filmStorage, UserService userService, FilmWithGenreStorage filmWithGenreStorage,
+                       FilmLikesStorage filmLikesStorage, GenreStorage genreStorage, FilmMpaStorage filmMpaStorage,
+                       FilmMapper filmMapper) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.filmWithGenreStorage = filmWithGenreStorage;
         this.filmLikesStorage = filmLikesStorage;
         this.genreStorage = genreStorage;
         this.filmMpaStorage = filmMpaStorage;
-        this.mappingUtils = mappingUtils;
         this.filmMapper = filmMapper;
     }
 
     public FilmDto add(FilmDto filmDto) {
-//        Film film = mappingUtils.mapToFilm(filmDto);
         Film film = filmMapper.toFilm(filmDto);
         validation(film);
         filmStorage.add(film);
@@ -56,7 +54,6 @@ public class FilmService {
             filmWithGenreStorage.setFilmWithGenre(film);
         }
         log.info("Film '{}' added", film.getName());
-//        filmDto = mappingUtils.mapToFilmDto(film);
         filmDto = filmMapper.toFilmDto(film);
         return filmDto;
     }
@@ -75,13 +72,11 @@ public class FilmService {
 
     @Transactional
     public FilmDto update(FilmDto filmDto) {
-//        Film film = mappingUtils.mapToFilm(filmDto);
         Film film = filmMapper.toFilm(filmDto);
         getById(film.getId());
         filmStorage.update(film);
         filmWithGenreStorage.updateFilmWithGenre(film);
         filmLikesStorage.getFilmWithLikes(film);
-//        filmDto = mappingUtils.mapToFilmDto(film);
         filmDto = filmMapper.toFilmDto(film);
         log.info("Film '{}' update", film.getName());
         return filmDto;
@@ -93,7 +88,6 @@ public class FilmService {
             filmWithGenreStorage.getFilmWithGenresId(film);
             filmLikesStorage.getFilmWithLikes(film);
             log.info("Get film  with id: {}", id);
-//            return mappingUtils.mapToFilmDto(film);
             return filmMapper.toFilmDto(film);
         } catch (EmptyResultDataAccessException e) {
             throw new FilmNotFoundException("Film not found");
@@ -105,7 +99,6 @@ public class FilmService {
         return filmStorage.getAll().stream()
                 .map(filmWithGenreStorage::getFilmWithGenresId)
                 .map(filmLikesStorage::getFilmWithLikes)
-//                .map(mappingUtils::mapToFilmDto)
                 .map(filmMapper::toFilmDto)
                 .collect(Collectors.toList());
     }
